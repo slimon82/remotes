@@ -6,23 +6,19 @@ require __DIR__ . '/../src/RemoteCompatibilityRepository.php';
 use App\RemoteCompatibilityRepository;
 
 header('Content-Type: application/json; charset=utf-8');
+header('X-Content-Type-Options: nosniff');
 
-if ($_SERVER['REQUEST_METHOD'] !== 'GET' || !isset($_GET['action'])) {
-    echo json_encode(['success' => false, 'message' => 'طلب غير صالح']);
+if ($_SERVER['REQUEST_METHOD'] !== 'GET' || ($_GET['action'] ?? '') !== 'search') {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'message' => 'طلب غير صالح'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-$repo = new RemoteCompatibilityRepository();
-
-if ($_GET['action'] === 'search') {
-    $query = trim($_GET['q'] ?? '');
-    $results = $repo->searchDevices($query);
-
-    echo json_encode([
-        'success' => true,
-        'results' => $results,
-    ]);
-    exit;
+try {
+    $repo = new RemoteCompatibilityRepository();
+    $results = $repo->searchDevices(trim($_GET['q'] ?? ''));
+    echo json_encode(['success' => true, 'results' => $results], JSON_UNESCAPED_UNICODE);
+} catch (Throwable $exception) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'تعذر إجراء البحث الآن'], JSON_UNESCAPED_UNICODE);
 }
-
-echo json_encode(['success' => false, 'message' => 'الإجراء غير معروف']);

@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS remotes_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE remotes_db;
+
 DROP TABLE IF EXISTS device_remote;
 DROP TABLE IF EXISTS remotes;
 DROP TABLE IF EXISTS devices;
@@ -7,7 +10,8 @@ CREATE TABLE devices (
     brand VARCHAR(120) NOT NULL,
     model VARCHAR(180) NOT NULL,
     notes TEXT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_devices_brand_model (brand, model)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE remotes (
@@ -15,7 +19,8 @@ CREATE TABLE remotes (
     brand VARCHAR(120) NOT NULL,
     model VARCHAR(180) NOT NULL,
     notes TEXT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_remotes_brand_model (brand, model)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE device_remote (
@@ -28,6 +33,13 @@ CREATE TABLE device_remote (
     UNIQUE KEY uq_device_remote (device_id, remote_id),
     CONSTRAINT fk_device_remote_device FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE,
     CONSTRAINT fk_device_remote_remote FOREIGN KEY (remote_id) REFERENCES remotes(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS admin_users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    username VARCHAR(80) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT INTO devices (brand, model, notes) VALUES
@@ -46,5 +58,5 @@ INSERT INTO device_remote (device_id, remote_id, compatibility_type, notes) VALU
 (1, 1, 'مناسب بالكامل', 'توافق كامل مع شاشات Samsung'),
 (1, 4, 'توافق جزئي', 'التحكم الأساسي يعمل، بعض الأزرار لا تستجيب'),
 (2, 2, 'مناسب بالكامل', 'توافق كامل مع LG'),
-(3, 3, 'يحتاج برمجة', 'يحتاج تهيئة أولية للانضمام'),
+(3, 3, 'يحتاج برمجة', 'يحتاج تهيئة أولية للريموت'),
 (4, 4, 'مناسب بالكامل', 'توافق كامل مع Hisense');
