@@ -80,12 +80,15 @@ $hasSearch = $query !== '' || $selectedDeviceId > 0;
                             <div class="compatibility-list">
                                 <?php foreach ($compatibilityRows as $row): ?>
                                     <?php
-                                        $badgeClass = match ($row['compatibility_type']) {
-                                            'مناسب بالكامل' => 'full',
-                                            'يحتاج برمجة' => 'program',
-                                            'توافق جزئي' => 'partial',
-                                            default => 'full',
-                                        };
+                                        $badgeClass = 'full';
+
+                                        if ($row['compatibility_type'] === 'مناسب بالكامل') {
+                                            $badgeClass = 'full';
+                                        } elseif ($row['compatibility_type'] === 'يحتاج برمجة') {
+                                            $badgeClass = 'program';
+                                        } elseif ($row['compatibility_type'] === 'توافق جزئي') {
+                                            $badgeClass = 'partial';
+                                        }
                                     ?>
                                     <div class="compatibility-item">
                                         <div>
